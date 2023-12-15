@@ -55,12 +55,13 @@ if __name__ == "__main__":
     combo_num = 1
     for num_features in ALL_NUM_FEATURES:
         for perc_demo in PERCENT_DEMOS:
-            allowed_demos = demo_order[:int(MDP_SIZE**2 * perc_demo)]
-            demos = [generate_optimal_demo(mdp, init_state, true_q_values)[0] for init_state in allowed_demos]
             for i in range(NUM_ITERS):
                 start = time.time()
                 mdp = get_mdp(num_features)
                 true_q_values = calculate_q_values(mdp)
+                allowed_demos = demo_order[:int(MDP_SIZE**2 * perc_demo)]
+                demos = [generate_optimal_demo(mdp, init_state, true_q_values)[0] for init_state in allowed_demos]
+
                 if args.method == "birl":
                     birl = BIRL(mdp, demos, beta = BETA)
                     birl.run_mcmc(MAX_SAMPLES, 0.5)
@@ -69,6 +70,7 @@ if __name__ == "__main__":
                     pass
                 elif args.method == "avril":
                     pass
+                
                 end = time.time()
                 print(f"Finished combo {combo_num} of {TOTAL_ROUNDS}, time: {format_time(end - start)}")
 
