@@ -73,6 +73,7 @@ if __name__ == "__main__":
                 
                 end = time.time()
                 print(f"Finished combo {combo_num} of {TOTAL_ROUNDS}, time: {format_time(end - start)}")
+                combo_num += 1
 
                 log_path = f"./logs/{args.method}/feat{num_features}_demo{int(100 * perc_demo)}_seed{args.seed}.pkl"
                 with open(log_path, "wb") as f:
