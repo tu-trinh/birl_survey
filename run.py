@@ -95,7 +95,6 @@ if __name__ == "__main__":
                     avril = AVRIL(mdp, inputs, targets, num_features, 4)
                     avril.train(MAX_SAMPLES)
                     evolution = avril.get_evolution()
-                    print(evolution)
                 
                 end = time.time()
                 print(f"Finished combo {combo_num} of {TOTAL_ROUNDS}, time: {format_time(end - start)}")
