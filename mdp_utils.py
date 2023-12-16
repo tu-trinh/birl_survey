@@ -284,6 +284,9 @@ def two_norm_diff(x, y, length):
         sum_squares += diff**2
     return sum_squares
 
+def kl_gaussian(mean, var):
+    return 0.5 * (-np.log(var) - 1.0 + var + mean**2)
+
 
 """
 Feature Count Bound and Other Bounds Functions
