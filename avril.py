@@ -58,10 +58,10 @@ class AVRIL:
         assert len(next_states[0]) == self.env.num_features, "Must reshape next_states"
         assert len(states) == len(next_states), "len(states) != len(next_states)"
 
-        states = torch.from_numpy(states).float()
-        next_states = torch.from_numpy(next_states).float()
-        actions = torch.from_numpy(actions).long()
-        next_actions = torch.from_numpy(next_actions).long()
+        states = torch.from_numpy(states).float().to(self.device)
+        next_states = torch.from_numpy(next_states).float().to(self.device)
+        actions = torch.from_numpy(actions).long().to(self.device)
+        next_actions = torch.from_numpy(next_actions).long().to(self.device)
 
         q_values = self.q_net(states)
         q_values_a = torch.gather(q_values, 1, actions.unsqueeze(0)).squeeze(0).reshape(len(states)).to(self.device)
