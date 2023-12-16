@@ -68,13 +68,30 @@ def plot_data(data, feat, demo):
     plt.savefig(f"./plots/conv_feat{feat}_demo{demo}.png")
 
 
-def plot_env(gt_reward, state_features):
+def plot_env(gt_reward, method_rewards, state_features, seed):
     reward_grid = []
+    birl_grid = []
+    brex_grid = []
+    avril_grid = []
+    methods = ["birl", "brex", "avril"]
     for sf in state_features:
         reward_idx = np.where(sf == 1)[0][0]
         reward_grid.append(gt_reward[reward_idx])
+        birl_grid.append(method_rewards["birl"][reward_idx])
+        brex_grid.append(method_rewards["brex"][reward_idx])
+        avril_grid.append(method_rewards["avril"][reward_idx])
+    grids = [reward_grid, birl_grid, brex_grid, avril_grid]
+    fig, axes = plt.subplots(nrows = 1, ncols = 4, figsize = (20, 5))
+    for i, rew in enumerate(grids):
+        grid = np.array(rew).reshape(8, 8)
+        im = axes[i].imshow(grid, cmap = "hot", interpolation = "nearest")
+        if i == 0:
+            axes[i].set_title("Ground Truth MDP Rewards")
+        else:
+            axes[i].set_title(f"{methods[i - 1].upper()}-Learned Rewards")
+    fig.colorbar(im, ax = axes.ravel().tolist())
+    plt.savefig(f"./plots/rewards_seed{seed}.png")
     
-
 
 def main():
     for num_features in ALL_NUM_FEATURES:
@@ -91,19 +108,18 @@ def alt():
     for num_features in [4]:
         for perc_demo in [100]:
             for seed in range(10):
-                file_name = f"./logs/brex/feat{num_features}_demo{perc_demo}_seed{seed}.pkl"
+                file_name = f"./logs/brex/feat{num_features}_demo{perc_demo}_seed{seed}_env.pkl"
                 with open(file_name, "rb") as f:
                     env_data = pickle.load(f)
-                    gt_reward = env_data[gt_reward]
-                    state_features = env_data[state_features]
+                    gt_reward = env_data["gt_reward"]
+                    state_features = env_data["state_features"]
                 
                 method_rewards = {}
                 for method in ALL_METHODS:
-                    file_name = file_name = f"./logs/{method}/feat{feat}_demo{demo}_seed{seed}.pkl"
+                    file_name = file_name = f"./logs/{method}/feat{num_features}_demo{perc_demo}_seed{seed}_rew.pkl"
                     with open(file_name, "rb") as f:
-                        final_rew = pickle.load(f)[-1]
-                        # TODO: FUCKKKKK
-                    plot_env(gt_reward, state_features)
+                        method_rewards[method] = pickle.load(f)
+                plot_env(gt_reward, method_rewards, state_features, seed)
 
 
 if __name__ == "__main__":
