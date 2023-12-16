@@ -286,10 +286,10 @@ def two_norm_diff(x, y, length):
     return sum_squares
 
 def kl_gaussian(mean, var):
-    if type(mean) == torch.tensor:
-        mean = mean.cpu().numpy()
-    if type(var) == torch.tensor:
-        var = var.cpu().numpy()
+    if isinstance(mean, torch.Tensor):
+        mean = mean.detach().cpu().numpy()
+    if isinstance(var, torch.Tensor):
+        var = var.detach().cpu().numpy()
     return 0.5 * (-np.log(var) - 1.0 + var + mean**2)
 
 
