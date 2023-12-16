@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-import argparse
+import numpy as np
 import pickle
 
 
@@ -32,7 +32,7 @@ def calc_mean_and_std(evolutions):
                 sums[i] = 0
                 sums_of_squares[i] = 0
                 counts[i] = 0
-            sums[i] += value
+            sums[i] += dist
             sums_of_squares[i] += dist ** 2
             counts[i] += 1
     means = []
@@ -46,13 +46,21 @@ def calc_mean_and_std(evolutions):
     return (means, stds)
 
 
+def sliding_window_average(data, window_size = 20):
+    averaged_data = [np.mean(data[max(i - window_size + 1, 0) : i + 1]) for i in range(len(data))]
+    return averaged_data
+
+
 def plot_data(data, feat, demo):
+    plt.figure()
     for method in ALL_METHODS:
         mean, std = data[method]
-        x = range(len(mean))
-        plt.plot(x, mean, label = method.upper(), color = COLORS[method])
-        plt.fill_between(x, [m - s for m, s in zip(mean, std)], [m + s for m, s in zip(mean, std)],
-                         color = COLORS[method], alpha = 0.3)
+        mean_avg = sliding_window_average(mean)
+        std_avg = sliding_window_average(std)
+        x = range(len(mean_avg))
+        plt.plot(x, mean_avg, label = method.upper(), color = COLORS[method])
+        # plt.fill_between(x, [m - s for m, s in zip(mean_avg, std_avg)], [m + s for m, s in zip(mean_avg, std_avg)],
+        #                  color = COLORS[method], alpha = 0.3)
     plt.xlabel("Iteration")
     plt.ylabel("Distance to Ground Truth Reward")
     plt.title(f"{feat} Features, {demo}% States as Demos")
@@ -68,8 +76,15 @@ def main():
             for method in ALL_METHODS:
                 evolutions[method] = get_method_logs(method, num_features, perc_demo)
                 data[method] = calc_mean_and_std(evolutions[method])
-                plot_data(data, num_features, perc_demo)
+            plot_data(data, num_features, perc_demo)
+
+
+def support():
+    for num_features in ALL_NUM_FEATURES:
+        for perc_demo in ALL_PERC_DEMOS:
+            
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    support()
