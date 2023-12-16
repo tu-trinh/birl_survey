@@ -43,8 +43,8 @@ class AVRIL:
         state_features = np.eye(self.env.num_features)
         rew = []
         for sf in state_features:
-            if type(sf) != torch.tensor:
-                sf = torch.from_numpy(sf).float()
+            if not isinstance(sf, torch.Tensor):
+                sf = torch.from_numpy(sf).float().to(self.device)
             with torch.no_grad():
                 out = self.encoder(sf)[0].item()
                 rew.append(out)
