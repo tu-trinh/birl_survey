@@ -12,13 +12,17 @@ from datetime import timedelta
 import pickle
 
 
+redo = True
 MDP_SIZE = 8
 ALL_NUM_FEATURES = [4]
 PERCENT_DEMOS = [1]
 NUM_ITERS = 1
 BETA = 10
 TOTAL_ROUNDS = len(ALL_NUM_FEATURES) * len(PERCENT_DEMOS) * NUM_ITERS
-MAX_SAMPLES = 5000
+if redo:
+    MAX_SAMPLES = 10000
+else:
+    MAX_SAMPLES = 5000
 STEP_SIZE = 0.5
 
 
@@ -87,14 +91,21 @@ if __name__ == "__main__":
                     sol = brex.get_solution()
                 
                 elif args.method == "avril":
-                    sf = mdp.state_features
-                    states = [sf[s] for traj in trajectories for s, _ in traj[:-1]]
-                    next_states = [sf[s] for traj in trajectories for s, _ in traj[1:]]
+                    if redo:
+                        sf = mdp.state_features
+                        states = [sf[s] for traj in trajectories for s, _ in traj[:-1]]
+                        next_states = [sf[s] for traj in trajectories for s, _ in traj[1:]]
+                    else:
+                        states = [s for traj in trajectories for s, _ in traj[:-1]]
+                        next_states = [s for traj in trajectories for s, _ in traj[1:]]
                     actions = [a for traj in trajectories for _, a in traj[:-1]]
                     next_actions = [a for traj in trajectories for _, a in traj[1:]]
                     inputs = (states, next_states)
                     targets = (actions, next_actions)
-                    avril = AVRIL(mdp, inputs, targets, num_features, 4)
+                    if redo:
+                        avril = AVRIL(mdp, inputs, targets, num_features, 4)
+                    else:
+                        avril = AVRIL(mdp, inputs, targets, 1, 4)
                     avril.train(MAX_SAMPLES)
                     evolution = avril.get_evolution()
                     sol = avril.get_solution()
@@ -103,9 +114,12 @@ if __name__ == "__main__":
                 print(f"Finished combo {combo_num} of {TOTAL_ROUNDS}, time: {format_time(end - start)}")
                 combo_num += 1
 
-                # log_path = f"./logs/{args.method}/feat{num_features}_demo{int(100 * perc_demo)}_seed{args.seed}.pkl"
-                # with open(log_path, "wb") as f:
-                #     pickle.dump(evolution, f)
+                if redo:
+                    log_path = f"./logs/{args.method}/feat{num_features}_demo{int(100 * perc_demo)}_seed{args.seed}_redo.pkl"
+                else:
+                    log_path = f"./logs/{args.method}/feat{num_features}_demo{int(100 * perc_demo)}_seed{args.seed}_new.pkl"
+                with open(log_path, "wb") as f:
+                        pickle.dump(evolution, f)
                 # data = {
                 #     "gt_reward": mdp.feature_weights,
                 #     "state_features": mdp.state_features
@@ -113,6 +127,9 @@ if __name__ == "__main__":
                 # log_path = f"./logs/{args.method}/feat{num_features}_demo{int(100 * perc_demo)}_seed{args.seed}_env.pkl"
                 # with open(log_path, "wb") as f:
                 #     pickle.dump(data, f)
-                log_path = f"./logs/{args.method}/feat{num_features}_demo{int(100 * perc_demo)}_seed{args.seed}_rew.pkl"
+                if redo:
+                    log_path = f"./logs/{args.method}/feat{num_features}_demo{int(100 * perc_demo)}_seed{args.seed}_rew_redo.pkl"
+                else:
+                    log_path = f"./logs/{args.method}/feat{num_features}_demo{int(100 * perc_demo)}_seed{args.seed}_rew_new.pkl"
                 with open(log_path, "wb") as f:
                     pickle.dump(sol, f)
