@@ -94,3 +94,10 @@ if __name__ == "__main__":
                 log_path = f"./logs/{args.method}/feat{num_features}_demo{int(100 * perc_demo)}_seed{args.seed}.pkl"
                 with open(log_path, "wb") as f:
                     pickle.dump(evolution, f)
+                data = {
+                    "gt_reward": mdp.feature_weights,
+                    "state_features": mdp.state_features
+                }
+                log_path = f"./logs/{args.method}/feat{num_features}_demo{int(100 * perc_demo)}_seed{args.seed}_env.pkl"
+                with open(log_path, "wb") as f:
+                    pickle.dump(data, f)
