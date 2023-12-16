@@ -1,6 +1,7 @@
 from mdp import FeatureMDP
 import numpy as np
 import math
+import torch
 import random
 
 
@@ -285,6 +286,10 @@ def two_norm_diff(x, y, length):
     return sum_squares
 
 def kl_gaussian(mean, var):
+    if type(mean) == torch.tensor:
+        mean = mean.cpu().numpy()
+    if type(var) == torch.tensor:
+        var = var.cpu().numpy()
     return 0.5 * (-np.log(var) - 1.0 + var + mean**2)
 
 
