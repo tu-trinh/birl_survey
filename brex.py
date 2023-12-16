@@ -203,6 +203,6 @@ class BREX:
 
     
     def get_solution(self):
-        for i in range(5000, -1, -1):
+        for i in range(4999, -1, -1):
             if self.r_chain[i] is not None:
                 return self.r_chain[i].feature_weights
