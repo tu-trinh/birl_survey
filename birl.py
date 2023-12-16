@@ -121,6 +121,12 @@ class BIRL:
         return self.map_sol
     
 
+    def get_solution(self):
+        for i in range(5000, -1, -1):
+            if self.chain[i, :] is not None:
+                return self.chain[i, :]
+    
+    
     def get_evolution(self):
         return self.closenesses
 

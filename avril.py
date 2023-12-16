@@ -112,3 +112,7 @@ class AVRIL:
 
     def get_evolution(self):
         return self.closenesses
+
+
+    def get_solution(self):
+        return self.reward()

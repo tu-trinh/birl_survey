@@ -68,6 +68,14 @@ def plot_data(data, feat, demo):
     plt.savefig(f"./plots/conv_feat{feat}_demo{demo}.png")
 
 
+def plot_env(gt_reward, state_features):
+    reward_grid = []
+    for sf in state_features:
+        reward_idx = np.where(sf == 1)[0][0]
+        reward_grid.append(gt_reward[reward_idx])
+    
+
+
 def main():
     for num_features in ALL_NUM_FEATURES:
         for perc_demo in ALL_PERC_DEMOS:
@@ -79,12 +87,25 @@ def main():
             plot_data(data, num_features, perc_demo)
 
 
-def support():
-    for num_features in ALL_NUM_FEATURES:
-        for perc_demo in ALL_PERC_DEMOS:
-            
+def alt():
+    for num_features in [4]:
+        for perc_demo in [100]:
+            for seed in range(10):
+                file_name = f"./logs/brex/feat{num_features}_demo{perc_demo}_seed{seed}.pkl"
+                with open(file_name, "rb") as f:
+                    env_data = pickle.load(f)
+                    gt_reward = env_data[gt_reward]
+                    state_features = env_data[state_features]
+                
+                method_rewards = {}
+                for method in ALL_METHODS:
+                    file_name = file_name = f"./logs/{method}/feat{feat}_demo{demo}_seed{seed}.pkl"
+                    with open(file_name, "rb") as f:
+                        final_rew = pickle.load(f)[-1]
+                        # TODO: FUCKKKKK
+                    plot_env(gt_reward, state_features)
 
 
 if __name__ == "__main__":
     # main()
-    support()
+    alt()

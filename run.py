@@ -13,8 +13,8 @@ import pickle
 
 
 MDP_SIZE = 8
-ALL_NUM_FEATURES = [2, 4, 8]
-PERCENT_DEMOS = [.25, .5, .75, 1]
+ALL_NUM_FEATURES = [4]
+PERCENT_DEMOS = [1]
 NUM_ITERS = 1
 BETA = 10
 TOTAL_ROUNDS = len(ALL_NUM_FEATURES) * len(PERCENT_DEMOS) * NUM_ITERS
@@ -68,6 +68,7 @@ if __name__ == "__main__":
                     birl = BIRL(mdp, demos, beta = BETA)
                     birl.run_mcmc(MAX_SAMPLES, STEP_SIZE)
                     evolution = birl.get_evolution()
+                    sol = birl.get_solution()
                 
                 elif args.method == "brex":
                     traj_returns = [calculate_trajectory_return(mdp, traj) for traj in trajectories]
@@ -83,6 +84,7 @@ if __name__ == "__main__":
                     brex.add_preferences(prefs)
                     brex.run()
                     evolution = brex.get_evolution()
+                    sol = brex.get_solution()
                 
                 elif args.method == "avril":
                     sf = mdp.state_features
@@ -95,18 +97,22 @@ if __name__ == "__main__":
                     avril = AVRIL(mdp, inputs, targets, num_features, 4)
                     avril.train(MAX_SAMPLES)
                     evolution = avril.get_evolution()
+                    sol = avril.get_solution()
                 
                 end = time.time()
                 print(f"Finished combo {combo_num} of {TOTAL_ROUNDS}, time: {format_time(end - start)}")
                 combo_num += 1
 
-                log_path = f"./logs/{args.method}/feat{num_features}_demo{int(100 * perc_demo)}_seed{args.seed}.pkl"
+                # log_path = f"./logs/{args.method}/feat{num_features}_demo{int(100 * perc_demo)}_seed{args.seed}.pkl"
+                # with open(log_path, "wb") as f:
+                #     pickle.dump(evolution, f)
+                # data = {
+                #     "gt_reward": mdp.feature_weights,
+                #     "state_features": mdp.state_features
+                # }
+                # log_path = f"./logs/{args.method}/feat{num_features}_demo{int(100 * perc_demo)}_seed{args.seed}_env.pkl"
+                # with open(log_path, "wb") as f:
+                #     pickle.dump(data, f)
+                log_path = f"./logs/{args.method}/feat{num_features}_demo{int(100 * perc_demo)}_seed{args.seed}_rew.pkl"
                 with open(log_path, "wb") as f:
-                    pickle.dump(evolution, f)
-                data = {
-                    "gt_reward": mdp.feature_weights,
-                    "state_features": mdp.state_features
-                }
-                log_path = f"./logs/{args.method}/feat{num_features}_demo{int(100 * perc_demo)}_seed{args.seed}_env.pkl"
-                with open(log_path, "wb") as f:
-                    pickle.dump(data, f)
+                    pickle.dump(sol, f)
