@@ -19,6 +19,7 @@ NUM_ITERS = 1
 BETA = 10
 TOTAL_ROUNDS = len(ALL_NUM_FEATURES) * len(PERCENT_DEMOS) * NUM_ITERS
 MAX_SAMPLES = 5000
+STEP_SIZE = 0.5
 
 
 def get_mdp(num_features):
@@ -60,14 +61,29 @@ if __name__ == "__main__":
                 mdp = get_mdp(num_features)
                 true_q_values = calculate_q_values(mdp)
                 allowed_demos = demo_order[:int(MDP_SIZE**2 * perc_demo)]
-                demos = [generate_optimal_demo(mdp, init_state, true_q_values)[0] for init_state in allowed_demos]
+                trajectories = [generate_optimal_demo(mdp, init_state, true_q_values) for init_state in allowed_demos]
 
                 if args.method == "birl":
+                    demos = [traj[0] for traj in trajectories]
                     birl = BIRL(mdp, demos, beta = BETA)
-                    birl.run_mcmc(MAX_SAMPLES, 0.5)
+                    birl.run_mcmc(MAX_SAMPLES, STEP_SIZE)
                     evolution = birl.get_evolution()
+                
                 elif args.method == "brex":
-                    pass
+                    traj_returns = [calculate_trajectory_return(mdp, traj) for traj in trajectories]
+                    prefs = []
+                    for i in range(len(trajectories)):
+                        for j in range(i + 1, len(trajectories)):
+                            if traj_returns[i] > traj_returns[j]:
+                                prefs.append((j, i))
+                            elif traj_returns[j] > traj_returns[i]:
+                                prefs.append((i, j))
+                    brex = BREX(mdp, -1, 1, MAX_SAMPLES, STEP_SIZE, 0.95)
+                    brex.add_trajectories(trajectories)
+                    brex.add_preferences(prefs)
+                    brex.run()
+                    evolution = brex.get_evolution()
+                
                 elif args.method == "avril":
                     pass
                 

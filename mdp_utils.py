@@ -65,6 +65,14 @@ def calculate_q_values(env, V = None, epsilon = 0.0001):
             Q_values[s][a] = env.rewards[s] + env.gamma * np.dot(env.transitions[s][a], V)
     return Q_values
 
+def calculate_trajectory_return(env, trajectory):
+    cum_return = 0
+    for i in range(len(trajectory)):
+        state = trajectory[i][0]
+        reward_idx = np.where(env.state_features[state] == 1)[0][0]
+        cum_return += env.gamma**i * env.feature_weights[reward_idx]
+    return cum_return
+
 
 """
 Policy Functions
@@ -123,7 +131,7 @@ Demonstration Generation Functions
 """
 def generate_optimal_demo(env, start_state, q_values):
     current_state = start_state
-    max_traj_length = 1
+    max_traj_length = (env.num_rows * env.num_cols) // 2
     optimal_trajectory = []
     while (len(optimal_trajectory) < max_traj_length):
         #generate an optimal action, break ties uniformly at random
