@@ -54,10 +54,6 @@ class AVRIL:
     
 
     def elbo(self, states, next_states, actions, next_actions):
-        assert len(states[0]) == self.env.num_features, "Must reshape states"
-        assert len(next_states[0]) == self.env.num_features, "Must reshape next_states"
-        assert len(states) == len(next_states), "len(states) != len(next_states)"
-
         states = torch.from_numpy(states).float().to(self.device)
         next_states = torch.from_numpy(next_states).float().to(self.device)
         actions = torch.from_numpy(actions).long().to(self.device)

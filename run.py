@@ -12,10 +12,10 @@ from datetime import timedelta
 import pickle
 
 
-redo = True
+redo = False
 MDP_SIZE = 8
-ALL_NUM_FEATURES = [4]
-PERCENT_DEMOS = [1]
+ALL_NUM_FEATURES = [2, 4, 8]
+PERCENT_DEMOS = [.25, .5, .75, 1]
 NUM_ITERS = 1
 BETA = 10
 TOTAL_ROUNDS = len(ALL_NUM_FEATURES) * len(PERCENT_DEMOS) * NUM_ITERS
